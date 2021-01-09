@@ -44,7 +44,7 @@ def combine_features(tuple_data,params,is_train=False):
 def return_dataloader(input_ids,labels,att_vals,att_masks,params,is_train=False):
     inputs = torch.tensor(input_ids)
     labels = torch.tensor(labels,dtype=torch.long)
-    masks = torch.tensor(np.array(att_masks),dtype=torch.uint8)
+    masks = torch.tensor(np.array(att_masks), dtype=torch.bool)
     attention = torch.tensor(np.array(att_vals),dtype=torch.float)
     data = TensorDataset(inputs,attention,masks,labels)
     if(is_train==False):
@@ -53,4 +53,3 @@ def return_dataloader(input_ids,labels,att_vals,att_masks,params,is_train=False)
         sampler = RandomSampler(data)
     dataloader = DataLoader(data, sampler=sampler, batch_size=params['batch_size'])
     return dataloader
-
