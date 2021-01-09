@@ -1,4 +1,4 @@
-from transformers.modeling_bert import *
+from transformers.models.bert.modeling_bert import *
 from .utils import masked_cross_entropy
 
 
