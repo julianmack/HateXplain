@@ -46,10 +46,17 @@ Hate speech is a challenging issue plaguing the online social media. While bette
 ------------------------------------------
 ***Usage instructions*** 
 ------------------------------------------
-please setup the **Dataset** first (more important if your using non-bert model). Install the libraries using the following command (preferably inside an environemt)
-~~~
-pip install -r requirements.txt
-~~~
+please setup the **Dataset** first (more important if your using non-bert model). Install the libraries using the following commands.
+
+```bash
+conda create -f environement.yml
+conda activate hate-explain
+
+# download spaCy model
+python -m spacy download en_core_web_sm
+```
+
+
 #### Training
 To train the model use the following command.
 ~~~
