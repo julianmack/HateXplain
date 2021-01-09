@@ -1,0 +1,19 @@
+name: hate-explain
+channels:
+  - defaults
+dependencies:
+  - keras
+  - python=3.8.5
+  - pytorch
+  - scikit-learn
+  - scipy=1.5.2
+  - setuptools
+  - spacy
+  - pip:
+    - ekphrasis
+    - gensim
+    - GPUtil
+    - knockknock
+    - neptune-client
+    - transformers>=4.1
+    - waiting
