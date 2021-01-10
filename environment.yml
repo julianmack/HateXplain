@@ -14,6 +14,7 @@ dependencies:
     - gensim
     - GPUtil
     - knockknock
+    - lime
     - neptune-client
     - transformers>=4.1
     - waiting
