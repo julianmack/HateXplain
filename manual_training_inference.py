@@ -47,7 +47,7 @@ def get_gpu():
     print('There are %d GPU(s) available.' % torch.cuda.device_count())
     while(1):
         tempID = [] 
-        tempID = GPUtil.getAvailable(order = 'memory', limit = 1, maxLoad = 0.1, maxMemory = 0.07, includeNan=False, excludeID=[], excludeUUID=[])
+        tempID = GPUtil.getAvailable(order = 'memory', limit = 1, maxLoad = 0.3, maxMemory = 0.2, includeNan=False, excludeID=[], excludeUUID=[])
         if len(tempID) > 0:
             print("Found a gpu")
             print('We will use the GPU:',tempID[0],torch.cuda.get_device_name(tempID[0]))
@@ -277,7 +277,8 @@ def train_model(params,device):
         # Reset the total loss for this epoch.
         total_loss = 0
         model.train()
-
+        if params['bert_tokens']:
+            tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=False)
         # For each batch of training data...
         for step, batch in tqdm(enumerate(train_dataloader)):
 
@@ -382,7 +383,6 @@ def train_model(params,device):
             
             if(params['bert_tokens']):
                 print('Loading BERT tokenizer...')
-                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=False)
                 save_bert_model(model,tokenizer,params)
             else:
                 print("Saving model")
@@ -571,7 +571,6 @@ if __name__=='__main__':
     params['variance']=1
     params['epochs']=5
     params['to_save']=True
-    params['num_classes']=3
     params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
     params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
     if(params['num_classes']==2 and (params['auto_weights']==False)):
@@ -580,20 +579,3 @@ if __name__=='__main__':
     #for att_lambda in [0.001,0.01,0.1,1,10,100]
     params['att_lambda']=float(args.attention_lambda)
     train_model(params,device)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
