@@ -31,7 +31,6 @@ from tqdm import tqdm, tqdm_notebook
 import pandas as pd
 import ast
 from torch.nn import LogSoftmax
-from lime.lime_text import LimeTextExplainer
 import numpy as np
 import argparse
 import GPUtil
@@ -348,4 +347,3 @@ if __name__=='__main__':
         fp.write('\n'.join(json.dumps(i,cls=NumpyEncoder) for i in final_list_dict))
 
 # In[ ]:
-

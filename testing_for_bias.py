@@ -31,10 +31,10 @@ from tqdm import tqdm, tqdm_notebook
 import pandas as pd
 import ast
 from torch.nn import LogSoftmax
-from lime.lime_text import LimeTextExplainer
 import numpy as np
 import argparse
 import GPUtil
+from pathlib import Path
 
 # In[3]:
 
@@ -214,30 +214,6 @@ def get_final_dict(params,test_data,topk):
     list_dict_org,test_data=standaloneEval(params, extra_data_path=test_data, topk=2)
     return list_dict_org
 
-# In[115]:
-
-
-# def get_final_dict_with_lime(params,model_name,test_data,topk):
-#     list_dict_org,test_data=standaloneEval_with_lime(params,model_name,test_data=test_data, topk=topk)
-#     test_data_with_rational=convert_data(test_data,params,list_dict_org,rational_present=True,topk=topk)
-#     list_dict_with_rational,_=standaloneEval_with_lime(params,model_name,test_data=test_data_with_rational, topk=topk,rational=True)
-#     test_data_without_rational=convert_data(test_data,params,list_dict_org,rational_present=False,topk=topk)
-#     list_dict_without_rational,_=standaloneEval_with_lime(params,model_name,test_data=test_data_without_rational, topk=topk,rational=True)
-#     final_list_dict=[]
-#     for ele1,ele2,ele3 in zip(list_dict_org,list_dict_with_rational,list_dict_without_rational):
-#         ele1['sufficiency_classification_scores']=ele2['classification_scores']
-#         ele1['comprehensiveness_classification_scores']=ele3['classification_scores']
-#         final_list_dict.append(ele1)
-#     final_list_dict=list_dict_org
-#     return final_list_dict
-
-
-# In[ ]:
-
-
-
-# In[88]:
-
 class NumpyEncoder(json.JSONEncoder):
     """ Special json encoder for numpy types """
     def default(self, obj):
@@ -282,9 +258,6 @@ if __name__=='__main__':
     final_dict=get_final_dict(params, params['data_file'],topk=5)
     path_name=model_dict_params[model_to_use]
     path_name_explanation='explanations_dicts/'+path_name.split('/')[1].split('.')[0]+'_bias.json'
+    Path("explanations_dicts/").mkdir(parents=True, exist_ok=True)
     with open(path_name_explanation, 'w') as fp:
         fp.write('\n'.join(json.dumps(i,cls=NumpyEncoder) for i in final_dict))
-
-
-# In[ ]:
-
