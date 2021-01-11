@@ -232,10 +232,17 @@ def collect_data(params):
     return train_data
 
 
-
-
-
-
+def load_dataset_df(num_classes):
+    num_class_to_labels_fp = {
+        2: 'Data/classes_two.npy',
+        3: 'Data/classes.npy'
+    }
+    params = {
+        'num_classes': num_classes,
+        'data_file': 'Data/dataset.json',
+        'class_names': num_class_to_labels_fp[num_classes]
+    }
+    return get_annotated_data(params)
 
 
 
@@ -423,5 +430,3 @@ def get_dict_comments(orig_dict_id,data_all_labelled,params):
         with open(dict_comment_file, 'wb') as handle:
             pickle.dump(dict_comments, handle, protocol=pickle.HIGHEST_PROTOCOL)
     return dict_comments
-
-
