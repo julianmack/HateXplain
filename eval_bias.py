@@ -6,8 +6,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from tqdm.notebook import tqdm
 
-from Preprocess.dataCollect import get_annotated_data
-
+from Preprocess.dataCollect import load_dataset_df
 
 # The bias methods that will be considered
 method_list = ['subgroup', 'bpsn', 'bnsp']
@@ -67,17 +66,6 @@ def get_df_bias(subset):
 
     return df_bias, community_list
 
-def load_dataset_df(num_classes):
-    num_class_to_labels_fp = {
-        2: 'Data/classes_two.npy',
-        3: 'Data/classes.npy'
-    }
-    params = {
-        'num_classes': num_classes,
-        'data_file': 'Data/dataset.json',
-        'class_names': num_class_to_labels_fp[num_classes]
-    }
-    return get_annotated_data(params)
 
 def generate_target_info(dataset):
     """Extracts group target information.txt
