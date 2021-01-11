@@ -64,7 +64,7 @@ dict_data_folder={
       '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
 }
 
-def return_params(path_name,att_lambda,num_classes=3):
+def return_params(path_name, att_lambda, num_classes=3):
     with open(path_name,mode='r') as f:
         params = json.load(f)
     for key in params:
@@ -79,10 +79,11 @@ def return_params(path_name,att_lambda,num_classes=3):
         if((key == 'weights') and (params['auto_weights']==False)):
             params[key] = ast.literal_eval(params[key])
     params['att_lambda']=att_lambda
-    params['num_classes']=num_classes
+    if num_classes is not None:
+        params['num_classes']=num_classes
     if(params['bert_tokens']):        
         output_dir = 'Saved/'+params['path_files']+'_'
-        if(params['train_att']):
+        if(params['train_att'] and params['att_lambda'] is not None):
             if(params['att_lambda']>=1):
                 params['att_lambda']=int(params['att_lambda'])
             output_dir=output_dir+str(params['supervised_layer_pos'])+'_'+str(params['num_supervised_heads'])
@@ -99,22 +100,6 @@ def return_params(path_name,att_lambda,num_classes=3):
           params['weights']=[1.0,1.0]
     
     return params
-
-
-
-
-
-
-
-
-
-
-
-
-            
-            
-            
-            
             
             
 ########################################### EXTRA METRICS CALCULATOR            
@@ -278,4 +263,3 @@ def flat_fscore(preds, labels):
     pred_flat = np.argmax(preds, axis=1).flatten()
     labels_flat = labels.flatten()
     return f1_score(labels_flat, pred_flat, average='macro')
-
