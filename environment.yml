@@ -15,6 +15,7 @@ dependencies:
     - GPUtil
     - knockknock
     - lime
+    - more_itertools
     - neptune-client
     - transformers>=4.1
     - waiting
