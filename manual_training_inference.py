@@ -34,8 +34,9 @@ import numpy as np
 import threading
 import argparse
 import ast
+from datetime import datetime
 
-
+NEPTUNE_API_TOKEN = os.environ.get('NEPTUNE_API_TOKEN')
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -242,7 +243,7 @@ def train_model(params,device):
         bert_model = params['path_files']
         name_one=bert_model
     else:
-        name_one=params['model_name']
+        name_one=params['model_name'] + datetime.now().strftime("%d/%m-%H:%M:%S")
         
     if(params['logging']=='neptune'):
         neptune.create_experiment(name_one,params=params,send_hardware_metrics=False,run_monitoring_thread=False)
@@ -525,7 +526,10 @@ if __name__=='__main__':
                            type=str,
                            help='required to assign the contribution of the atention loss')
     
-    
+    my_parser.add_argument('--project_name',
+                           type=str,
+                           default='julianmack/hate-explain',
+                           help='neptune project name')
     
     args = my_parser.parse_args()
     params['best_params']=False
@@ -545,19 +549,18 @@ if __name__=='__main__':
                 params[key] = ast.literal_eval(params[key])
         params['best_params']=True 
     ##### change in logging to output the results to neptune
-    params['logging']='local'
     if(params['logging']=='neptune'):
-        from api_config import project_name,api_token
-        neptune.init(project_name,api_token=api_token)
-        neptune.set_project(project_name)
+        assert args.project_name
+        neptune.init(args.project_name, api_token=NEPTUNE_API_TOKEN)
+        neptune.set_project(args.project_name)
     torch.autograd.set_detect_anomaly(True)
     if torch.cuda.is_available() and params['device']=='cuda':    
         # Tell PyTorch to use the GPU.    
         device = torch.device("cuda")
         ##### You can set the device manually if you have only one gpu
         ##### comment this line if you don't want to manually set the gpu
-        deviceID = get_gpu()
-        torch.cuda.set_device(deviceID[0])
+        # deviceID = get_gpu()
+        # torch.cuda.set_device(deviceID[0])
         ##### comment this line if you don't want to manually set the gpu
         #### parameter required is the gpu id
         #torch.cuda.set_device(0)
@@ -569,7 +572,7 @@ if __name__=='__main__':
         
     #### Few handy keys that you can directly change.
     params['variance']=1
-    params['epochs']=5
+    params['epochs']=20
     params['to_save']=True
     params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
     params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
