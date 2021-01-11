@@ -26,6 +26,7 @@ from sklearn.utils import class_weight
 import json
 from Models.bertModels import *
 from Models.otherModels import *
+from Models.utils import return_params
 import sys
 import time
 from waiting import wait
@@ -501,12 +502,6 @@ def Merge(dict1, dict2,dict3, dict4):
 
 params = Merge(params_data,common_hp,params_bert,params_other)
 
-
-dict_data_folder={
-      '2':{'data_file':'Data/dataset.json','class_label':'Data/classes_two.npy'},
-      '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
-}
-
 if __name__=='__main__': 
     my_parser = argparse.ArgumentParser(description='Train a deep-learning model with the given data')
 
@@ -534,25 +529,18 @@ if __name__=='__main__':
     args = my_parser.parse_args()
     params['best_params']=False
     if(args.use_from_file == 'True'):
-        with open(args.path,mode='r') as f:
-            params = json.load(f)
-        for key in params:
-            if params[key] == 'True':
-                 params[key]=True
-            elif params[key] == 'False':
-                 params[key]=False
-            if( key in ['batch_size','num_classes','hidden_size','supervised_layer_pos','num_supervised_heads','random_seed','max_length']):
-                if(params[key]!='N/A'):
-                    params[key]=int(params[key])
-                
-            if((key == 'weights') and (params['auto_weights']==False)):
-                params[key] = ast.literal_eval(params[key])
+        params = return_params(
+            path=args.path,
+            att_lambda=args.attention_lambda,
+            num_classes=None,
+        )
         params['best_params']=True 
-    ##### change in logging to output the results to neptune
+
     if(params['logging']=='neptune'):
         assert args.project_name
         neptune.init(args.project_name, api_token=NEPTUNE_API_TOKEN)
         neptune.set_project(args.project_name)
+
     torch.autograd.set_detect_anomaly(True)
     if torch.cuda.is_available() and params['device']=='cuda':    
         # Tell PyTorch to use the GPU.    
@@ -574,11 +562,5 @@ if __name__=='__main__':
     params['variance']=1
     params['epochs']=20
     params['to_save']=True
-    params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
-    params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
-    if(params['num_classes']==2 and (params['auto_weights']==False)):
-          params['weights']=[1.0,1.0]
-            
-    #for att_lambda in [0.001,0.01,0.1,1,10,100]
-    params['att_lambda']=float(args.attention_lambda)
-    train_model(params,device)
+
+    train_model(params, device)
