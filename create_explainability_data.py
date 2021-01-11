@@ -2,10 +2,10 @@ import argparse
 import json
 from pathlib import Path
 import os
+import ast
 
 import more_itertools as mit
 from transformers import BertTokenizerFast
-from tqdm.notebook import tqdm
 
 from Preprocess.dataCollect import load_dataset_df
 from Preprocess.spanMatcher import returnMask
@@ -171,9 +171,8 @@ def convert_to_eraser_format(dataset, method, save_split, save_path, id_division
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--bert_model',
-        type=bool,
-        default=True,
+        'bert_model',
+        type=ast.literal_eval,
         help='Boolean. True if bert uncased model.'
     )
 
