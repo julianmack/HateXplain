@@ -530,7 +530,7 @@ if __name__=='__main__':
     params['best_params']=False
     if(args.use_from_file == 'True'):
         params = return_params(
-            path=args.path,
+            path_name=args.path,
             att_lambda=args.attention_lambda,
             num_classes=None,
         )
