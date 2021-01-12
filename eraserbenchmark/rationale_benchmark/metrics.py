@@ -663,13 +663,13 @@ def main():
     # pprint.pprint(scores)
 
     print('\nPlausibility')
-    print('IOU F1 :', scores['iou_scores'][0]['macro']['f1'])
-    print('Token F1 :', scores['token_prf']['instance_macro']['f1'])
-    print('AUPRC :', scores['token_soft_metrics']['auprc'])
+    print('\tIOU F1 :', scores['iou_scores'][0]['macro']['f1'])
+    print('\tToken F1 :', scores['token_prf']['instance_macro']['f1'])
+    print('\tAUPRC :', scores['token_soft_metrics']['auprc'])
 
     print('\nFaithfulness')
-    print('Comprehensiveness :', scores['classification_scores']['comprehensiveness'])
-    print('Sufficiency', scores['classification_scores']['sufficiency'])
+    print('\tComprehensiveness :', scores['classification_scores']['comprehensiveness'])
+    print('\tSufficiency', scores['classification_scores']['sufficiency'])
 
     if args.score_file:
         with open(args.score_file, 'w') as of:

@@ -1,3 +1,8 @@
+# ignore sklearn UndefinedMetricWarning
+from sklearn.exceptions import UndefinedMetricWarning
+import warnings
+warnings.simplefilter(action='ignore', category=UndefinedMetricWarning)
+
 import torch
 import transformers 
 from transformers import *
@@ -12,7 +17,6 @@ from Models.utils import fix_the_random,format_time,get_gpu,return_params
 from Models.utils import masked_cross_entropy,softmax,return_params
 #### model utils
 from Models.utils import save_normal_model,save_bert_model,load_model
-from tqdm import tqdm
 from TensorDataset.datsetSplitter import createDatasetSplit
 from TensorDataset.dataLoader import combine_features
 from sklearn.metrics import accuracy_score,f1_score,roc_auc_score,recall_score,precision_score
@@ -27,7 +31,7 @@ from Models.otherModels import *
 from sklearn.preprocessing import LabelEncoder
 from Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
 from TensorDataset.datsetSplitter import encodeData
-from tqdm import tqdm, tqdm_notebook
+from tqdm import tqdm
 import pandas as pd
 import ast
 from torch.nn import LogSoftmax
@@ -87,7 +91,7 @@ def select_model(params,embeddings):
             print("Error in model name!!!!")
         return model
 
-
+@torch.no_grad()
 def standaloneEval_with_rational(params, test_data=None,extra_data_path=None, topk=2,use_ext_df=False):
 #     device = torch.device("cpu")
     if torch.cuda.is_available() and params['device']=='cuda':    
@@ -96,7 +100,6 @@ def standaloneEval_with_rational(params, test_data=None,extra_data_path=None, to
         deviceID = get_gpu(params)
         torch.cuda.set_device(deviceID[0])
     else:
-        print('Since you dont want to use GPU, using the CPU instead.')
         device = torch.device("cpu")
 
     
@@ -116,7 +119,11 @@ def standaloneEval_with_rational(params, test_data=None,extra_data_path=None, to
         y_test = [ele[2] for ele in test] 
         encoder = LabelEncoder()
         encoder.classes_ = np.load('Data/classes.npy')
-        params['weights']=class_weight.compute_class_weight('balanced',np.unique(y_test),y_test).astype('float32')
+        params['weights']=class_weight.compute_class_weight(
+            'balanced',
+            classes=np.unique(y_test),
+            y=y_test
+        ).astype('float32')
     if(extra_data_path!=None):
         params_dash={}
         params_dash['num_classes']=3
@@ -151,7 +158,6 @@ def standaloneEval_with_rational(params, test_data=None,extra_data_path=None, to
     else:
         post_id_all=list(test['Post_id'])
     
-    print("Running eval on test data...")
     t0 = time.time()
     true_labels=[]
     pred_labels=[]

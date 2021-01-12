@@ -1,3 +1,7 @@
+# ignore ekphrasis FutureWarning
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 from ekphrasis.classes.preprocessor import TextPreProcessor
 from ekphrasis.classes.tokenizer import SocialTokenizer
 from ekphrasis.dicts.emoticons import emoticons
@@ -248,21 +252,3 @@ def preProcessing(query):
     if len(tokens) == 0:
         print("Zero token sentence detected!")
     return tokens
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

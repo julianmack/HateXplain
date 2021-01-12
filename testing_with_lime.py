@@ -1,3 +1,8 @@
+# ignore sklearn UndefinedMetricWarning
+from sklearn.exceptions import UndefinedMetricWarning
+import warnings
+warnings.simplefilter(action='ignore', category=UndefinedMetricWarning)
+
 import torch
 import transformers 
 from transformers import *
@@ -111,7 +116,6 @@ class modelPred():
             deviceID = get_gpu(self.params)
             torch.cuda.set_device(deviceID[0])
         else:
-            print('Since you dont want to use GPU, using the CPU instead.')
             self.device = torch.device("cpu")
 
         
@@ -134,8 +138,11 @@ class modelPred():
             y_test = [ele[2] for ele in self.test] 
             encoder = LabelEncoder()
             encoder.classes_ = np.load('Data/classes.npy')
-            params['weights']=class_weight.compute_class_weight('balanced',np.unique(y_test),y_test).astype('float32')
-
+            params['weights']=class_weight.compute_class_weight(
+                'balanced',
+                classes=np.unique(y_test),
+                y=y_test
+            ).astype('float32')
 
         temp_read=transform_dummy_data(sentences_list)
         test_data=get_test_data(temp_read,params,message='text')
@@ -149,7 +156,6 @@ class modelPred():
         # Tracking variables
         post_id_all=list(test_data['Post_id'])
 
-        print("Running eval on test data...")
         t0 = time.time()
         true_labels=[]
         pred_labels=[]
@@ -210,7 +216,7 @@ class modelPred():
 # In[ ]:
 
 
-
+@torch.no_grad()
 def standaloneEval_with_lime(params, model_to_use,test_data=None,topk=2,rational=False):
     encoder = LabelEncoder()
     encoder.classes_ = np.load('Data/classes.npy')
@@ -401,4 +407,3 @@ if __name__=='__main__':
 
 
 # In[ ]:
-

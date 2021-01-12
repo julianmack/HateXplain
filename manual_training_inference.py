@@ -384,7 +384,6 @@ def train_model(params,device):
             best_test_recall = test_recall
             
             if(params['bert_tokens']):
-                print('Loading BERT tokenizer...')
                 save_bert_model(model,tokenizer,params)
             else:
                 print("Saving model")

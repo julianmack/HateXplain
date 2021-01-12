@@ -90,7 +90,7 @@ def get_training_data(data,params,tokenizer):
     label_list=[]
     count=0
     count_confused=0
-    print('total_data',len(data))
+
     for index,row in tqdm(data.iterrows(),total=len(data)):
         #print(params)
         text=row['text']
@@ -127,17 +127,15 @@ def get_test_data(data,params,message='text'):
     '''output: training data in the columns post_id,text (tokens) , attentions (normal) and labels'''
     
     if(params['bert_tokens']):
-        print('Loading BERT tokenizer...')
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=False)
     else:
         tokenizer=None
-    
     
     post_ids_list=[]
     text_list=[]
     attention_list=[]
     label_list=[]
-    print('total_data',len(data))
+
     for index,row in tqdm(data.iterrows(),total=len(data)):
         post_id=row['post_id']
         annotation=row['final_label']
@@ -223,7 +221,6 @@ def transform_dummy_data(sentences):
 
 def collect_data(params):
     if(params['bert_tokens']):
-        print('Loading BERT tokenizer...')
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=False)
     else:
         tokenizer=None
@@ -269,10 +266,7 @@ def get_training_data_one_time(data,params,tokenizer):
     majority=params['majority']
     
     dict_data={}
-   
-    
-    print('total_data',len(data))
-    
+
     for index,row in tqdm(data.iterrows(),total=len(data)):
         post_id=row['post_id']
         dict_data[post_id]={}

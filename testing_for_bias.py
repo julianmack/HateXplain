@@ -1,3 +1,8 @@
+# ignore sklearn UndefinedMetricWarning
+from sklearn.exceptions import UndefinedMetricWarning
+import warnings
+warnings.simplefilter(action='ignore', category=UndefinedMetricWarning)
+
 import torch
 import transformers 
 from transformers import *
@@ -15,7 +20,6 @@ from Models.utils import save_normal_model,save_bert_model,load_model
 from tqdm import tqdm
 from TensorDataset.datsetSplitter import createDatasetSplit
 from TensorDataset.dataLoader import combine_features
-from sklearn.metrics import accuracy_score,f1_score,roc_auc_score,recall_score,precision_score
 import matplotlib.pyplot as plt
 import time
 import os
@@ -60,7 +64,6 @@ model_dict_params={
 
 def select_model(params,embeddings):
     if(params['bert_tokens']):
-        print(params['num_classes'])
         if(params['what_bert']=='weighted'):
             model = SC_weighted_BERT.from_pretrained(
             params['path_files'], # Use the 12-layer BERT model, with an uncased vocab.
@@ -89,7 +92,7 @@ def select_model(params,embeddings):
             print("Error in model name!!!!")
         return model
 
-    
+@torch.no_grad()
 def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_df=False):
     device = torch.device("cpu")
     embeddings=None
@@ -107,7 +110,11 @@ def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_d
         y_test = [ele[2] for ele in test] 
         encoder = LabelEncoder()
         encoder.classes_ = np.load(params['class_names'],allow_pickle=True)
-        params['weights']=class_weight.compute_class_weight('balanced',np.unique(y_test),y_test).astype('float32')
+        params['weights']=class_weight.compute_class_weight(
+            'balanced',
+            classes=np.unique(y_test),
+            y=y_test
+        ).astype('float32')
     if(extra_data_path!=None):
         params_dash={}
         params_dash['num_classes']=2
@@ -141,7 +148,6 @@ def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_d
     else:
         post_id_all=list(test['Post_id'])
     
-    print("Running eval on test data...")
     t0 = time.time()
     true_labels=[]
     pred_labels=[]
