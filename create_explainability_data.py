@@ -21,7 +21,8 @@ def create_explainability_data(bert_model=True):
         save_path = './Data/Evaluation/Model_Eval/bert/'
         tokenizer = BertTokenizerFast.from_pretrained(
             params['path-files'],
-            do_lower_case=False
+            do_lower_case=False,
+            strip_accents=False
         )
     else:
         params = {
