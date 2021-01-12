@@ -9,6 +9,7 @@ eraserbenchmark-master/
 movies/
 Dataset_Eraser_Format/
 explanations_dicts/
+metric_summaries/
 glove.840B.300d.txt
 glove.840B.300d.zip
 glove.840B.300d_w2v.txt
