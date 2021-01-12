@@ -62,7 +62,7 @@ def encodeData(dataframe,vocab,params):
     tuple_new_data=[]
     for index,row in tqdm(dataframe.iterrows(),total=len(dataframe)):
         if(params['bert_tokens']):
-            tuple_new_data.append((row['Text'],row['Attention'],row['Label']))
+            tuple_new_data.append((row['Text'],row['Attention'],row['Label'],  row['Post_id']))
         else:   
             list_token_id=[]
             for word in row['Text']:
@@ -71,7 +71,7 @@ def encodeData(dataframe,vocab,params):
                 except KeyError:
                     index=vocab.stoi['unk']
                 list_token_id.append(index)
-            tuple_new_data.append((list_token_id,row['Attention'],row['Label']))
+            tuple_new_data.append((list_token_id,row['Attention'],row['Label'], row['Post_id']))
     return tuple_new_data
 
 
@@ -85,7 +85,7 @@ def createDatasetSplit(params):
     else:
         dataset=collect_data(params)
         
-    if(path.exists(filename[:-7])):
+    if (path.exists(filename[:-7])):
         with open(filename[:-7]+'/train_data.pickle', 'rb') as f:
             X_train = pickle.load(f)
         with open(filename[:-7]+'/val_data.pickle', 'rb') as f:
@@ -141,7 +141,7 @@ def createDatasetSplit(params):
         if(params['bert_tokens']==False):
             with open(filename[:-7]+'/vocab_own.pickle', 'wb') as f:
                 pickle.dump(vocab_own, f)
-    
+
     if(params['bert_tokens']==False):
         return X_train,X_val,X_test,vocab_own
     else:
