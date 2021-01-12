@@ -1,3 +1,8 @@
+# ignore sklearn UndefinedMetricWarning
+from sklearn.exceptions import UndefinedMetricWarning
+import warnings
+warnings.simplefilter(action='ignore', category=UndefinedMetricWarning)
+
 import argparse
 import json
 import logging
@@ -662,14 +667,14 @@ def main():
 
     # pprint.pprint(scores)
 
-    print('\nPlausibility')
-    print('\tIOU F1 :', scores['iou_scores'][0]['macro']['f1'])
-    print('\tToken F1 :', scores['token_prf']['instance_macro']['f1'])
-    print('\tAUPRC :', scores['token_soft_metrics']['auprc'])
+    print('Plausibility')
+    print('\tIOU F1:', scores['iou_scores'][0]['macro']['f1'])
+    print('\tTOKEN F1:', scores['token_prf']['instance_macro']['f1'])
+    print('\tAUPRC:', scores['token_soft_metrics']['auprc'])
 
     print('\nFaithfulness')
-    print('\tComprehensiveness :', scores['classification_scores']['comprehensiveness'])
-    print('\tSufficiency', scores['classification_scores']['sufficiency'])
+    print('\tCOMPREHENSIVENESS :', scores['classification_scores']['comprehensiveness'])
+    print('\tSUFFICIENCY', scores['classification_scores']['sufficiency'])
 
     if args.score_file:
         with open(args.score_file, 'w') as of:
