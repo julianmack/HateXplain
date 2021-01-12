@@ -65,12 +65,12 @@ def select_model(params,embeddings):
     if(params['bert_tokens']):
         if(params['what_bert']=='weighted'):
             model = SC_weighted_BERT.from_pretrained(
-            params['path_files'], # Use the 12-layer BERT model, with an uncased vocab.
-            num_labels = params['num_classes'], # The number of output labels
-            output_attentions = True, # Whether the model returns attentions weights.
-            output_hidden_states = False, # Whether the model returns all hidden-states.
-            hidden_dropout_prob=params['dropout_bert'],
-            params=params
+                params['path_files'], # Use the 12-layer BERT model, with an uncased vocab.
+                num_labels = params['num_classes'], # The number of output labels
+                output_attentions = True, # Whether the model returns attentions weights.
+                output_hidden_states = False, # Whether the model returns all hidden-states.
+                hidden_dropout_prob=params['dropout_bert'],
+                params=params
             )
         else:
             print("Error in bert model name!!!!")
@@ -176,13 +176,6 @@ def Eval_phase(params,which_files='test',model=None,test_dataloader=None,device=
         print(" Test took: {:}".format(format_time(time.time() - t0)))
         #print(ConfusionMatrix(true_labels,pred_labels))
     else:
-        bert_model = params['path_files']
-        language  = params['language']
-        name_one=bert_model+"_"+language
-        neptune.create_experiment(name_one,params=params,send_hardware_metrics=False,run_monitoring_thread=False)
-        neptune.append_tag(bert_model)
-        neptune.append_tag(language)
-        neptune.append_tag('test')
         neptune.log_metric('test_f1score',testf1)
         neptune.log_metric('test_accuracy',testacc)
         neptune.log_metric('test_precision',testprecision)
@@ -240,20 +233,6 @@ def train_model(params,device):
     fix_the_random(seed_val = params['random_seed'])
     # Store the average loss after each epoch so we can plot them.
     loss_values = []
-    if(params['bert_tokens']):
-        bert_model = params['path_files']
-        name_one=bert_model
-    else:
-        name_one=params['model_name'] + datetime.now().strftime("%d/%m-%H:%M:%S")
-        
-    if(params['logging']=='neptune'):
-        neptune.create_experiment(name_one,params=params,send_hardware_metrics=False,run_monitoring_thread=False)
-        
-        neptune.append_tag(name_one)
-        if(params['best_params']):
-            neptune.append_tag('AAAI final best')
-        else:
-            neptune.append_tag('AAAI final')
         
     best_val_fscore=0
     best_test_fscore=0
@@ -517,7 +496,7 @@ if __name__=='__main__':
     
     my_parser.add_argument('attention_lambda',
                            metavar='--attention_lambda',
-                           type=str,
+                           type=float,
                            help='required to assign the contribution of the atention loss')
     
     my_parser.add_argument('--project_name',
@@ -531,6 +510,7 @@ if __name__=='__main__':
         params = return_params(
             path_name=args.path,
             att_lambda=args.attention_lambda,
+            update_model_name=False,
             num_classes=None,
         )
         params['best_params']=True 
@@ -539,6 +519,25 @@ if __name__=='__main__':
         assert args.project_name
         neptune.init(args.project_name, api_token=NEPTUNE_API_TOKEN)
         neptune.set_project(args.project_name)
+
+
+        bert_model = None
+        if(params['bert_tokens']):
+            bert_model = params['path_files']
+            name_one=bert_model
+        else:
+            name_one=params['model_name']
+        name_one += "_" + datetime.now().strftime("%d/%m-%H:%M:%S")
+
+        neptune.create_experiment(
+            name_one,
+            params=params,
+            send_hardware_metrics=False,
+            run_monitoring_thread=False
+        )
+        neptune.append_tag(name_one)
+        if bert_model:
+            neptune.append_tag(bert_model)
 
     torch.autograd.set_detect_anomaly(True)
     if torch.cuda.is_available() and params['device']=='cuda':    
@@ -559,7 +558,7 @@ if __name__=='__main__':
         
     #### Few handy keys that you can directly change.
     params['variance']=1
-    params['epochs']=20
+    params['epochs']=5
     params['to_save']=True
 
     train_model(params, device)

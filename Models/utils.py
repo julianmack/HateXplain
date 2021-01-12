@@ -64,7 +64,7 @@ dict_data_folder={
       '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
 }
 
-def return_params(path_name, att_lambda, num_classes=3):
+def return_params(path_name, att_lambda, update_model_name=True, num_classes=3):
     with open(path_name,mode='r') as f:
         params = json.load(f)
     for key in params:
@@ -81,18 +81,9 @@ def return_params(path_name, att_lambda, num_classes=3):
     params['att_lambda']=att_lambda
     if num_classes is not None:
         params['num_classes']=num_classes
-    if(params['bert_tokens']):        
-        output_dir = 'Saved/'+params['path_files']+'_'
-        if(params['train_att'] and params['att_lambda'] is not None):
-            if(params['att_lambda']>=1):
-                params['att_lambda']=int(params['att_lambda'])
-            output_dir=output_dir+str(params['supervised_layer_pos'])+'_'+str(params['num_supervised_heads'])
-            output_dir=output_dir+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])
 
-        else:
-            output_dir=output_dir+'_'+str(params['num_classes'])
-        params['path_files']=output_dir
-    
+    if update_model_name:
+        params['path_files']=get_model_name(params)
    
     params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
     params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
@@ -100,7 +91,6 @@ def return_params(path_name, att_lambda, num_classes=3):
           params['weights']=[1.0,1.0]
     
     return params
-            
             
 ########################################### EXTRA METRICS CALCULATOR            
 
@@ -155,64 +145,55 @@ def masked_cross_entropy(input1,target,mask):
 
 ###########################################   MODEL LOADING, SAVING AND SELECTION FUNCtIONS
 
+def get_model_name(params):
+    if(params['bert_tokens']):
+        output_dir = 'Saved/'+params['path_files'] + '_'
+        if(params['train_att'] and params['att_lambda'] is not None):
+            if(params['att_lambda']>=1):
+                params['att_lambda']=int(params['att_lambda'])
+            elif params['att_lambda']:
+                params['att_lambda']=float(params['att_lambda'])
+            output_dir=output_dir+str(params['supervised_layer_pos'])+'_'+str(params['num_supervised_heads'])
+            output_dir=output_dir+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])
+
+        else:
+            output_dir=output_dir+'_'+str(params['num_classes'])
+    else:
+        if(params['train_att']==True):
+            if(params['att_lambda']>=1):
+                params['att_lambda']=int(params['att_lambda'])
+            output_dir='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'.pth'
+        else:
+            output_dir='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'.pth'
+    return output_dir
+
 
 #### load normal model (bert model is directly loaded using the pretrained method)
 def load_model(model, params, use_cuda=False):
-    if(params['train_att']==True):
-       
-        if(params['att_lambda']>=1):
-            params['att_lambda']=int(params['att_lambda'])
-        model_path='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'.pth' 
-    else:
-        model_path='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'.pth'
-    print(model_path)
     """Load model."""
+    model_path = get_model_name(params)
     map_location = 'cpu'
-#     if use_cuda and torch.cuda.is_available():
-    #map_location = 'cuda'
     model.load_state_dict(torch.load(model_path, map_location))
     return model
 
-
 def save_normal_model(model, params):
     """Save model."""
-    if(params['train_att']==True):
-        if(params['att_lambda']>=1):
-            params['att_lambda']=int(params['att_lambda'])
-
-        model_path='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'.pth'
-    else:
-        model_path='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'.pth'
-    
-    
-    print(model_path)
+    model_path = get_model_name(params)
+    print("Saving model to %s" % model_path)
     torch.save(model.state_dict(), model_path)
 
-
-
-    
 def save_bert_model(model,tokenizer,params):
-        output_dir = 'Saved/'+params['path_files']+'_'
-        if(params['train_att']):
-            if(params['att_lambda']>=1):
-                params['att_lambda']=int(params['att_lambda'])
+    output_dir = get_model_name(params)
+    # Create output directory if needed
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-            output_dir =  output_dir+str(params['supervised_layer_pos'])+'_'+str(params['num_supervised_heads'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'/'
-            
-        else:
-            output_dir=output_dir+'_'+str(params['num_classes'])+'/'
-        print(output_dir)
-        # Create output directory if needed
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        print("Saving model to %s" % output_dir)
-
-        # Save a trained model, configuration and tokenizer using `save_pretrained()`.
-        # They can then be reloaded using `from_pretrained()`
-        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
-        model_to_save.save_pretrained(output_dir)
-        tokenizer.save_pretrained(output_dir)
+    print("Saving model to %s" % output_dir)
+    # Save a trained model, configuration and tokenizer using `save_pretrained()`.
+    # They can then be reloaded using `from_pretrained()`
+    model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
+    model_to_save.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
 
 
 

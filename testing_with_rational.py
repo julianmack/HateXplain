@@ -320,7 +320,7 @@ if __name__=='__main__':
     
     my_parser.add_argument('attention_lambda',
                            metavar='--attention_lambda',
-                           type=str,
+                           type=float,
                            help='required to assign the contribution of the atention loss')
     
     
