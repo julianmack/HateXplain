@@ -41,6 +41,7 @@ class SC_weighted_BERT(BertPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
+
         #logits = self.softmax(logits)
 
         outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here

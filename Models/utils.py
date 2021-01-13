@@ -173,6 +173,7 @@ def load_model(model, params, use_cuda=False):
     """Load model."""
     model_path = get_model_name(params)
     map_location = 'cpu'
+    print(f'Loding model from {model_path}')
     model.load_state_dict(torch.load(model_path, map_location))
     return model
 

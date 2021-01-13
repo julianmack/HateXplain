@@ -195,9 +195,9 @@ def convert_to_score(label_name, label_dict):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'model_json_name',
+        'explanation_dict_name',
         type=str,
-        help='model to use for evaluation. '
+        help='explanation dict name to use for evaluation. '
             'eg `bestModel_bert_base_uncased_Attn_train_TRUE_bias.json`'
     )
     parser.add_argument(
@@ -209,5 +209,5 @@ if __name__ == '__main__':
 
 
     args = parser.parse_args()
-    explanations_fp = f'./explanations_dicts/{args.model_json_name}'
+    explanations_fp = f'./explanations_dicts/{args.explanation_dict_name}'
     eval_bias(explanations_fp, subset=args.subset)
