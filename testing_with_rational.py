@@ -285,14 +285,14 @@ if __name__=='__main__':
 
     args = my_parser.parse_args()
     
+    model_to_use=args.model_to_use
+
     params = return_params(
         model_dict_params[model_to_use],
         att_lambda=args.attention_lambda,
         num_supervised_heads=args.num_supervised_heads,
     )
     
-    
-    model_to_use=args.model_to_use
     
     params['variance']=1
     params['num_classes']=3

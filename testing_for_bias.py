@@ -211,6 +211,7 @@ if __name__=='__main__':
     my_parser = add_eval_args(my_parser)
     
     args = my_parser.parse_args()
+    model_to_use=args.model_to_use
 
     params = return_params(
         model_dict_params[model_to_use],
@@ -218,7 +219,6 @@ if __name__=='__main__':
         num_supervised_heads=args.num_supervised_heads,
         num_classes=2,
     )
-    model_to_use=args.model_to_use    
     params['variance']=1
     params['num_classes']=2
     fix_the_random(seed_val = params['random_seed'])
