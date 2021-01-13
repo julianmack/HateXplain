@@ -37,19 +37,9 @@ import numpy as np
 import argparse
 import GPUtil
 from pathlib import Path
-from Eval.utils import select_model
+from Eval.utils import select_model, LabelMapper
 from Eval.args import add_eval_args
 
-# In[3]:
-
-
-
-
-
-dict_data_folder={
-      '2':{'data_file':'Data/dataset.json','class_label':'Data/classes_two.npy'},
-      '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
-}
 
 model_dict_params={
     'bert':'best_model_json/bestModel_bert_base_uncased_Attn_train_FALSE.json',
@@ -58,7 +48,6 @@ model_dict_params={
     'cnngru':'best_model_json/bestModel_cnn_gru.json',
     'birnn_att':'best_model_json/bestModel_birnnatt.json',
     'birnn_scrat':'best_model_json/bestModel_birnnscrat.json'
-    
     
 }
 
@@ -87,9 +76,8 @@ def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_d
         ).astype('float32')
     if(extra_data_path!=None):
         params_dash={}
-        params_dash['num_classes']=2
         params_dash['data_file']=extra_data_path
-        params_dash['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
+        params_dash['class_names'] = 'Data/classes_two.npy'
         temp_read = get_annotated_data(params_dash)
         with open('Data/post_id_divisions.json', 'r') as fp:
             post_id_dict=json.load(fp)
@@ -112,6 +100,10 @@ def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_d
     model.eval()
     # Put the model in evaluation mode--the dropout layers behave differently
     # during evaluation.
+
+    # init label mapper (to map from 3 class to 2 class predictions)
+    label_mapper = LabelMapper()
+
     # Tracking variables
     if((extra_data_path!=None) or (use_ext_df==True) ):
         post_id_all=list(test_data['Post_id'])
@@ -152,6 +144,9 @@ def standaloneEval(params, test_data=None,extra_data_path=None, topk=2,use_ext_d
             labels=None,device=device)
         logits = outputs[0]
         
+        # convert to binary class
+        logits = label_mapper.multi_class_to_binary_probs(logits, logits=True)
+
         # Move logits and labels to CPU
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.detach().cpu().numpy()
@@ -217,13 +212,11 @@ if __name__=='__main__':
         model_dict_params[model_to_use],
         att_lambda=args.attention_lambda,
         num_supervised_heads=args.num_supervised_heads,
-        num_classes=2,
     )
-    params['variance']=1
-    params['num_classes']=2
     fix_the_random(seed_val = params['random_seed'])
-    params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
-    params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
+    params['variance'] = 1
+    params['class_names'] = 'Data/classes_two.npy'
+    params['data_file'] = 'Data/dataset.json'
     #test_data=get_test_data(temp_read,params,message='text')
     final_dict=get_final_dict(params, params['data_file'],topk=5)
     path_name=model_dict_params[model_to_use]
