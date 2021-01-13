@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from tqdm.notebook import tqdm
 
-from Preprocess.dataCollect import load_dataset_df
+from hateXplain.Preprocess.dataCollect import load_dataset_df
 
 # The bias methods that will be considered
 method_list = ['subgroup', 'bpsn', 'bnsp']

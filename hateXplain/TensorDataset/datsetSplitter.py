@@ -5,7 +5,7 @@ import sys, os
 sys.path.append('../')
 from torch.utils.data import Dataset
 import pandas as pd
-from Preprocess.dataCollect import collect_data,set_name
+from hateXplain.Preprocess.dataCollect import collect_data,set_name
 from sklearn.model_selection import train_test_split
 from os import path
 from gensim.models import KeyedVectors

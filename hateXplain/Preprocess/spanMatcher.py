@@ -1,6 +1,6 @@
 import re 
-from Preprocess.preProcess import *
-from Preprocess.preProcess import preProcessing
+from hateXplain.Preprocess.preProcess import *
+from hateXplain.Preprocess.preProcess import preProcessing
 
 from transformers import BertTokenizer
 import string 

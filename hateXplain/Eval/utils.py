@@ -4,8 +4,8 @@ import numpy as np
 from torch import Tensor
 from torch.nn import Softmax
 
-from Models.bertModels import *
-from Models.otherModels import *
+from hateXplain.Models.bertModels import *
+from hateXplain.Models.otherModels import *
 
 def select_model(params, embeddings):
     if(params['bert_tokens']):

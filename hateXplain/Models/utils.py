@@ -151,8 +151,15 @@ def masked_cross_entropy(input1,target,mask):
 ###########################################   MODEL LOADING, SAVING AND SELECTION FUNCtIONS
 
 def get_model_name(params):
+    fp = get_model_id(params)
+    fp = f'Saved/{fp}'
+    if not params['bert_tokens']:
+        fp += '.pth'
+    return fp
+
+def get_model_id(params):
     if(params['bert_tokens']):
-        output_dir = 'Saved/'+params['path_files'] + '_'
+        output_dir = params['path_files'] + '_'
         if(params['train_att'] and params['att_lambda'] is not None):
             if(params['att_lambda']>=1):
                 params['att_lambda']=int(params['att_lambda'])
@@ -167,11 +174,10 @@ def get_model_name(params):
         if(params['train_att']==True):
             if(params['att_lambda']>=1):
                 params['att_lambda']=int(params['att_lambda'])
-            output_dir='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'.pth'
+            output_dir=params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'_'+str(params['att_lambda'])+'.pth'
         else:
-            output_dir='Saved/'+params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'.pth'
+            output_dir=params['model_name']+'_'+params['seq_model']+'_'+str(params['hidden_size'])+'_'+str(params['num_classes'])+'.pth'
     return output_dir
-
 
 #### load normal model (bert model is directly loaded using the pretrained method)
 def load_model(model, params, use_cuda=False):

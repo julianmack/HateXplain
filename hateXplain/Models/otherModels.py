@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from Models.attentionLayer import *
+from hateXplain.Models.attentionLayer import *
 from .utils import masked_cross_entropy
 debug =False
 #### BiGRUCLassifier model
