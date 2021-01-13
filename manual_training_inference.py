@@ -91,7 +91,7 @@ def select_model(params,embeddings):
             print("Error in model name!!!!")
         return model
 
-
+@torch.no_grad()
 def Eval_phase(params,which_files='test',model=None,test_dataloader=None,device=None):
     if(params['is_model']==True):
         print("model previously passed")
@@ -203,12 +203,12 @@ def train_model(params,device):
         encoder.classes_ = np.load(params['class_names'],allow_pickle=True)
         params['weights']=class_weight.compute_class_weight('balanced',np.unique(y_test),y_test).astype('float32') 
         #params['weights']=np.array([len(y_test)/y_test.count(encoder.classes_[0]),len(y_test)/y_test.count(encoder.classes_[1]),len(y_test)/y_test.count(encoder.classes_[2])]).astype('float32') 
-        
-        
-    print(params['weights'])
-    train_dataloader =combine_features(train,params,is_train=True)   
-    validation_dataloader=combine_features(val,params,is_train=False)
-    test_dataloader=combine_features(test,params,is_train=False)
+
+    batch_size_eval = min(params['batch_size'], 32)
+    train_dataloader = combine_features(train,params,is_train=True)
+    train_dataloader_eval = combine_features(train,params,is_train=True, batch_size=batch_size_eval)
+    validation_dataloader=combine_features(val,params,is_train=False, batch_size=batch_size_eval)
+    test_dataloader=combine_features(test,params,is_train=False, batch_size=batch_size_eval)
     
    
     model=select_model(params,embeddings)
@@ -292,13 +292,12 @@ def train_model(params,device):
             
             loss = outputs[0]
            
-            if(params['logging']=='neptune'):
-            	neptune.log_metric('batch_loss',loss.item())
             # Accumulate the training loss over all of the batches so that we can
             # calculate the average loss at the end. `loss` is a Tensor containing a
             # single value; the `.item()` function just returns the Python value 
             # from the tensor.
-            total_loss += loss.item()
+            batch_loss = loss.item()
+            total_loss += batch_loss
 
             # Perform a backward pass to calculate the gradients.
             loss.backward()
@@ -313,6 +312,10 @@ def train_model(params,device):
             # Update the learning rate.
             if(params['bert_tokens']):
                 scheduler.step()
+
+            if(params['logging']=='neptune'):
+            	neptune.log_metric('batch_loss',batch_loss)
+
         # Calculate the average loss over the training data.
         avg_train_loss = total_loss / len(train_dataloader)
         if(params['logging']=='neptune'):
@@ -322,7 +325,7 @@ def train_model(params,device):
 
         # Store the loss value for plotting the learning curve.
         loss_values.append(avg_train_loss)
-        train_fscore,train_accuracy,train_precision,train_recall,train_roc_auc,_=Eval_phase(params,'train',model,train_dataloader,device)
+        train_fscore,train_accuracy,train_precision,train_recall,train_roc_auc,_=Eval_phase(params,'train',model,train_dataloader_eval,device)
         val_fscore,val_accuracy,val_precision,val_recall,val_roc_auc,_=Eval_phase(params,'val',model,validation_dataloader,device)
         test_fscore,test_accuracy,test_precision,test_recall,test_roc_auc,logits_all_final=Eval_phase(params,'test',model,test_dataloader,device)
 
@@ -503,6 +506,10 @@ if __name__=='__main__':
                            type=str,
                            default='julianmack/hate-explain',
                            help='neptune project name')
+    my_parser.add_argument('--num_supervised_heads',
+                           type=int,
+                           default=None
+                    )
     
     args = my_parser.parse_args()
     params['best_params']=False
@@ -514,6 +521,9 @@ if __name__=='__main__':
             num_classes=None,
         )
         params['best_params']=True 
+
+    if args.num_supervised_heads:
+        params['num_supervised_heads'] = args.num_supervised_heads
 
     if(params['logging']=='neptune'):
         assert args.project_name
@@ -558,7 +568,6 @@ if __name__=='__main__':
         
     #### Few handy keys that you can directly change.
     params['variance']=1
-    params['epochs']=5
     params['to_save']=True
 
     train_model(params, device)
