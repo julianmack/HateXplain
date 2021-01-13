@@ -12,13 +12,13 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 import random
 from transformers import BertTokenizer
 #### common utils
-from Models.utils import fix_the_random,format_time,get_gpu,return_params
+from hateXplain.Models.utils import fix_the_random,format_time,get_gpu,return_params
 #### metric utils 
-from Models.utils import masked_cross_entropy,softmax,return_params
+from hateXplain.Models.utils import masked_cross_entropy,softmax,return_params
 #### model utils
-from Models.utils import save_normal_model,save_bert_model,load_model
-from TensorDataset.datsetSplitter import createDatasetSplit
-from TensorDataset.dataLoader import combine_features
+from hateXplain.Models.utils import save_normal_model,save_bert_model,load_model
+from hateXplain.TensorDataset.datsetSplitter import createDatasetSplit
+from hateXplain.TensorDataset.dataLoader import combine_features
 from sklearn.metrics import accuracy_score,f1_score,roc_auc_score,recall_score,precision_score
 import matplotlib.pyplot as plt
 import time
@@ -27,8 +27,8 @@ import GPUtil
 from sklearn.utils import class_weight
 import json
 from sklearn.preprocessing import LabelEncoder
-from Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
-from TensorDataset.datsetSplitter import encodeData
+from hateXplain.Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
+from hateXplain.TensorDataset.datsetSplitter import encodeData
 from tqdm import tqdm
 import pandas as pd
 import ast
@@ -36,19 +36,9 @@ from torch.nn import LogSoftmax
 import numpy as np
 import argparse
 import GPUtil
-from Eval.utils import select_model
-from Eval.args import add_eval_args
+from hateXplain.Eval.utils import select_model
+from hateXplain.Eval.args import add_eval_args
 
-# In[3]:
-
-
-
-
-
-dict_data_folder={
-      '2':{'data_file':'Data/dataset.json','class_label':'Data/classes_two.npy'},
-      '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
-}
 
 model_dict_params={
     'bert':'best_model_json/bestModel_bert_base_uncased_Attn_train_FALSE.json',
@@ -96,9 +86,8 @@ def standaloneEval_with_rational(params, test_data=None,extra_data_path=None, to
         ).astype('float32')
     if(extra_data_path!=None):
         params_dash={}
-        params_dash['num_classes']=3
         params_dash['data_file']=extra_data_path
-        params_dash['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
+        params['class_names'] = 'Data/classes.npy'
         temp_read = get_annotated_data(params_dash)
         with open('Data/post_id_divisions.json', 'r') as fp:
             post_id_dict=json.load(fp)
@@ -295,11 +284,10 @@ if __name__=='__main__':
     
     
     params['variance']=1
-    params['num_classes']=3
     params['device']='cpu'
     fix_the_random(seed_val = params['random_seed'])
-    params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']
-    params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
+    params['class_names'] = 'Data/classes.npy'
+    params['data_file'] = 'Data/dataset.json'
     #test_data=get_test_data(temp_read,params,message='text')
     final_list_dict=get_final_dict_with_rational(params, params['data_file'],topk=5)
 

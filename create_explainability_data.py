@@ -7,8 +7,8 @@ import ast
 import more_itertools as mit
 from transformers import BertTokenizerFast
 
-from Preprocess.dataCollect import load_dataset_df
-from Preprocess.spanMatcher import returnMask
+from hateXplain.Preprocess.dataCollect import load_dataset_df
+from hateXplain.Preprocess.spanMatcher import returnMask
 
 def create_explainability_data(bert_model=True):
     if bert_model:

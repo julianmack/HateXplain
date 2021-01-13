@@ -10,12 +10,12 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 import random
 import pandas as pd
 from transformers import BertTokenizer
-from Models.utils import masked_cross_entropy,fix_the_random,format_time,save_normal_model,save_bert_model
+from hateXplain.Models.utils import masked_cross_entropy,fix_the_random,format_time,save_normal_model,save_bert_model
 from sklearn.metrics import accuracy_score,f1_score
 from tqdm import tqdm
-from TensorDataset.datsetSplitter import createDatasetSplit
-from TensorDataset.dataLoader import combine_features
-from Preprocess.dataCollect import collect_data,set_name
+from hateXplain.TensorDataset.datsetSplitter import createDatasetSplit
+from hateXplain.TensorDataset.dataLoader import combine_features
+from hateXplain.Preprocess.dataCollect import collect_data,set_name
 from sklearn.metrics import accuracy_score,f1_score,roc_auc_score,recall_score,precision_score
 import matplotlib.pyplot as plt
 import time
@@ -24,9 +24,9 @@ from transformers import BertTokenizer
 import GPUtil
 from sklearn.utils import class_weight
 import json
-from Models.bertModels import *
-from Models.otherModels import *
-from Models.utils import return_params
+from hateXplain.Models.bertModels import *
+from hateXplain.Models.otherModels import *
+from hateXplain.Models.utils import return_params
 import sys
 import time
 from waiting import wait

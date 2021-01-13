@@ -12,14 +12,14 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 import random
 from transformers import BertTokenizer
 #### common utils
-from Models.utils import fix_the_random,format_time,get_gpu,return_params
+from hateXplain.Models.utils import fix_the_random,format_time,get_gpu,return_params
 #### metric utils 
-from Models.utils import masked_cross_entropy,softmax,return_params
+from hateXplain.Models.utils import masked_cross_entropy,softmax,return_params
 #### model utils
-from Models.utils import save_normal_model,save_bert_model,load_model
+from hateXplain.Models.utils import save_normal_model,save_bert_model,load_model
 from tqdm import tqdm
-from TensorDataset.datsetSplitter import createDatasetSplit
-from TensorDataset.dataLoader import combine_features
+from hateXplain.TensorDataset.datsetSplitter import createDatasetSplit
+from hateXplain.TensorDataset.dataLoader import combine_features
 from sklearn.metrics import accuracy_score,f1_score,roc_auc_score,recall_score,precision_score
 import matplotlib.pyplot as plt
 import time
@@ -28,8 +28,8 @@ import GPUtil
 from sklearn.utils import class_weight
 import json
 from sklearn.preprocessing import LabelEncoder
-from Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
-from TensorDataset.datsetSplitter import encodeData
+from hateXplain.Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
+from hateXplain.TensorDataset.datsetSplitter import encodeData
 from tqdm import tqdm, tqdm_notebook
 import pandas as pd
 import ast
@@ -38,8 +38,8 @@ from lime.lime_text import LimeTextExplainer
 import numpy as np
 import argparse
 import GPUtil
-from Eval.utils import select_model
-from Eval.args import add_eval_args
+from hateXplain.Eval.utils import select_model
+from hateXplain.Eval.args import add_eval_args
 
 # In[3]:
 
