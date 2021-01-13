@@ -150,11 +150,14 @@ def bias_metric_not_agg(
 ):
     assert explanations_dict or explanations_fp
     assert not (explanations_dict and explanations_fp)
-    total_data ={}
-    with open(explanations_fp) as fp:
-        for line in fp:
-            data = json.loads(line)
-            total_data[data['annotation_id']] = data
+    if explanations_dict:
+        total_data = explanations_dict
+    else:
+        total_data = {}
+        with open(explanations_fp) as fp:
+            for line in fp:
+                data = json.loads(line)
+                total_data[data['annotation_id']] = data
     results = {k: {} for k in method_list}
     for each_method in method_list:
         for each_community in community_list:
