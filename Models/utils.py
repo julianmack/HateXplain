@@ -64,7 +64,7 @@ dict_data_folder={
       '3':{'data_file':'Data/dataset.json','class_label':'Data/classes.npy'}
 }
 
-def return_params(path_name, att_lambda, update_model_name=True, num_classes=3):
+def return_params(path_name, att_lambda, num_supervised_heads, update_model_name=True, num_classes=3):
     with open(path_name,mode='r') as f:
         params = json.load(f)
     for key in params:
@@ -78,7 +78,12 @@ def return_params(path_name, att_lambda, update_model_name=True, num_classes=3):
 
         if((key == 'weights') and (params['auto_weights']==False)):
             params[key] = ast.literal_eval(params[key])
+
     params['att_lambda']=att_lambda
+
+    if num_supervised_heads is not None:
+        params['num_supervised_heads'] = num_supervised_heads
+
     if num_classes is not None:
         params['num_classes']=num_classes
 

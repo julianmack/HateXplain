@@ -39,6 +39,7 @@ import numpy as np
 import argparse
 import GPUtil
 from Eval.utils import select_model
+from Eval.args import add_eval_args
 
 # In[3]:
 
@@ -323,32 +324,24 @@ class NumpyEncoder(json.JSONEncoder):
 if __name__=='__main__': 
     my_parser = argparse.ArgumentParser(description='Which model to use')
     
-    # Add the arguments
-    my_parser.add_argument('model_to_use',
-                           metavar='--model_to_use',
-                           type=str,
-                           help='model to use for evaluation')
+    my_parser = add_eval_args(my_parser)
     
-    
-    my_parser.add_argument('num_samples',
-                           metavar='--number_of_samples',
+    my_parser.add_argument('--num_samples',
                            type=int,
+                           default=100,
                            help='number of samples each instance of the data to pass in lime')
     
-    
-    my_parser.add_argument('attention_lambda',
-                           metavar='--attention_lambda',
-                           type=float,
-                           help='required to assign the contribution of the atention loss')
-    
-    
-    
+
     args = my_parser.parse_args()
     
+    params = return_params(
+        model_dict_params[model_to_use],
+        att_lambda=args.attention_lambda,
+        num_supervised_heads=args.num_supervised_heads,
+    )
     
     model_to_use=args.model_to_use
     
-    params={}
     params['num_classes']=3
     params['data_file']=dict_data_folder[str(params['num_classes'])]['data_file']
     params['class_names']=dict_data_folder[str(params['num_classes'])]['class_label']

@@ -37,6 +37,7 @@ import numpy as np
 import argparse
 import GPUtil
 from Eval.utils import select_model
+from Eval.args import add_eval_args
 
 # In[3]:
 
@@ -280,27 +281,18 @@ class NumpyEncoder(json.JSONEncoder):
     
 if __name__=='__main__': 
     my_parser = argparse.ArgumentParser(description='Which model to use')
+    my_parser = add_eval_args(my_parser)
 
-    # Add the arguments
-    my_parser.add_argument('model_to_use',
-                           metavar='--model_to_use',
-                           type=str,
-                           help='model to use for evaluation')
-    
-    my_parser.add_argument('attention_lambda',
-                           metavar='--attention_lambda',
-                           type=float,
-                           help='required to assign the contribution of the atention loss')
-    
     args = my_parser.parse_args()
+    
+    params = return_params(
+        model_dict_params[model_to_use],
+        att_lambda=args.attention_lambda,
+        num_supervised_heads=args.num_supervised_heads,
+    )
     
     
     model_to_use=args.model_to_use
-    
-    
-    params=return_params(model_dict_params[model_to_use],float(args.attention_lambda))
-    
-    
     
     params['variance']=1
     params['num_classes']=3

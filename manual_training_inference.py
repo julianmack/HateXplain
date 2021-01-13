@@ -506,10 +506,11 @@ if __name__=='__main__':
                            type=str,
                            default='julianmack/hate-explain',
                            help='neptune project name')
+
     my_parser.add_argument('--num_supervised_heads',
                            type=int,
-                           default=None
-                    )
+                           default=None,
+                           help='Number of supervised heads (BERT variants only)')
     
     args = my_parser.parse_args()
     params['best_params']=False
@@ -517,6 +518,7 @@ if __name__=='__main__':
         params = return_params(
             path_name=args.path,
             att_lambda=args.attention_lambda,
+            num_supervised_heads=args.num_supervised_heads,
             update_model_name=False,
             num_classes=None,
         )
