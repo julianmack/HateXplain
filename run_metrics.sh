@@ -14,14 +14,11 @@ num_supervised_heads="$5"
 output_file_rat="metric_summaries/rationale/${config_name}_${attn_lambda}_${num_supervised_heads}_${subset}.json"
 
 
-# TODO: add --subset $subset to testing_with_rational/testing_for_bias
-python testing_for_bias.py $model_name $attn_lambda --num_supervised_heads $num_supervised_heads
+python testing_for_bias.py $model_name $attn_lambda --num_supervised_heads $num_supervised_heads --subset $subset
+# TODO: save final testing_for_bias results to file
+
+
 python testing_with_rational.py $model_name $attn_lambda --num_supervised_heads $num_supervised_heads
-
-
-python eval_bias.py "${config_name}_bias.json" --subset $subset
-# TODO: save eval_bias result to file
-
 # NOTE: if you need to create explainability data in eraser format run
 # python create_explainability_data.py True/False
 cd eraserbenchmark && \

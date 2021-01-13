@@ -12,14 +12,14 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 import random
 from transformers import BertTokenizer
 #### common utils
-from Models.utils import fix_the_random,format_time,get_gpu,return_params
+from hateXplain.Models.utils import fix_the_random,format_time,get_gpu,return_params
 #### metric utils 
-from Models.utils import masked_cross_entropy,softmax,return_params
+from hateXplain.Models.utils import masked_cross_entropy,softmax,return_params
 #### model utils
-from Models.utils import save_normal_model,save_bert_model,load_model
+from hateXplain.Models.utils import save_normal_model,save_bert_model,load_model
 from tqdm import tqdm
-from TensorDataset.datsetSplitter import createDatasetSplit
-from TensorDataset.dataLoader import combine_features
+from hateXplain.TensorDataset.datsetSplitter import createDatasetSplit
+from hateXplain.TensorDataset.dataLoader import combine_features
 import matplotlib.pyplot as plt
 import time
 import os
@@ -27,8 +27,8 @@ import GPUtil
 from sklearn.utils import class_weight
 import json
 from sklearn.preprocessing import LabelEncoder
-from Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
-from TensorDataset.datsetSplitter import encodeData
+from hateXplain.Preprocess.dataCollect import get_test_data,convert_data,get_annotated_data,transform_dummy_data
+from hateXplain.TensorDataset.datsetSplitter import encodeData
 from tqdm import tqdm, tqdm_notebook
 import pandas as pd
 import ast
@@ -37,9 +37,9 @@ import numpy as np
 import argparse
 import GPUtil
 from pathlib import Path
-from Eval.utils import select_model, LabelMapper
-from Eval.args import add_eval_args
-
+from hateXplain.Eval.utils import select_model, LabelMapper
+from hateXplain.Eval.args import add_eval_args
+from hateXplain.Eval.eval_bias import eval_bias
 
 model_dict_params={
     'bert':'best_model_json/bestModel_bert_base_uncased_Attn_train_FALSE.json',
@@ -217,10 +217,18 @@ if __name__=='__main__':
     params['variance'] = 1
     params['class_names'] = 'Data/classes_two.npy'
     params['data_file'] = 'Data/dataset.json'
-    #test_data=get_test_data(temp_read,params,message='text')
-    final_dict=get_final_dict(params, params['data_file'],topk=5)
+    # test_data=get_test_data(temp_read,params,message='text')
+    list_dicts = get_final_dict(params, params['data_file'], topk = 5)
+
+    dict_dicts = {x['annotation_id']: x for x in list_dicts}
+
+    result = eval_bias(subset=args.subset, explanations_dict=dict_dicts)
+
+    print(result)
+
     path_name=model_dict_params[model_to_use]
-    path_name_explanation='explanations_dicts/'+path_name.split('/')[1].split('.')[0]+'_bias.json'
+    path_name_explanation='explanations_dicts/'+path_name.split('/')[1].split('.')[0]
+    path_name_explanation += f"{params['attention_lambda']}_{params['num_supervised_heads']}_bias.json"
     Path("explanations_dicts/").mkdir(parents=True, exist_ok=True)
     with open(path_name_explanation, 'w') as fp:
-        fp.write('\n'.join(json.dumps(i,cls=NumpyEncoder) for i in final_dict))
+        fp.write('\n'.join(json.dumps(i,cls=NumpyEncoder) for i in list_dicts))

@@ -12,11 +12,12 @@ from hateXplain.Preprocess.dataCollect import load_dataset_df
 method_list = ['subgroup', 'bpsn', 'bnsp']
 
 
-def eval_bias(explanations_fp, subset='test'):
+def eval_bias(subset='test', explanations_fp=None, explanations_dict=None):
     df_bias, community_list = get_df_bias(subset)
 
     metrics = bias_metric_not_agg(
-        explanations_fp,
+        explanations_fp=explanations_fp,
+        explanations_dict=explanations_dict,
         df_bias=df_bias,
         community_list=community_list
     )
@@ -144,7 +145,11 @@ def bias_evaluation_metric(dataset, method, community):
 
     return {'positiveID':positive_ids, 'negativeID':negative_ids}
 
-def bias_metric_not_agg(explanations_fp, df_bias, community_list):
+def bias_metric_not_agg(
+    df_bias, community_list, explanations_fp=None, explanations_dict=None,
+):
+    assert explanations_dict or explanations_fp
+    assert not (explanations_dict and explanations_fp)
     total_data ={}
     with open(explanations_fp) as fp:
         for line in fp:
@@ -210,4 +215,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     explanations_fp = f'./explanations_dicts/{args.explanation_dict_name}'
-    eval_bias(explanations_fp, subset=args.subset)
+    eval_bias(explanations_fp=explanations_fp, subset=args.subset)

@@ -16,4 +16,9 @@ def add_eval_args(parser):
                            default=None,
                            help='Number of supervised heads (BERT variants only)')
 
+    parser.add_argument('--subset',
+                           type=str,
+                           default='test',
+                           help='Subset of data to evaluate on')
+
     return parser
